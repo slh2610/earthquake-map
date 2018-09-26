@@ -3,13 +3,14 @@ import { Map, Marker, Popup, TileLayer } from 'react-leaflet'
 import axios from 'axios';
 import './App.css';
 import MagnitudeSelector from './components/MagnitudeSelector';
+import DateRangeSelector from './components/DateRangeSelector';
 
 class App extends Component {
   state = {
     earthquakes: [],
     magnitude: 0,
-    starttime: '2018-09-25',
-    endtime: '2018-09-26'
+    startTime: '2018-09-25',
+    endTime: '2018-09-26'
   }
   render() {
     return (
@@ -30,6 +31,7 @@ class App extends Component {
             )
           })}
         </Map>
+        <DateRangeSelector startTime={this.state.startTime} endTime={this.state.endTime} setDateRange={this.setDateRange} />
         <MagnitudeSelector setMagnitude={this.setMagnitude} />
       </div>
     );
@@ -39,13 +41,8 @@ class App extends Component {
     this.fetchData()
   }
 
-  // componentDidUpdate = () => {
-  //   if
-  //   this.fetchData()
-  // }
-
   fetchData = () => {
-    axios.get(`https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${this.state.starttime}&endtime=${this.state.endtime}&limit=1000&minmagnitude=${this.state.magnitude}`)
+    axios.get(`https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${this.state.startTime}&endtime=${this.state.endTime}&limit=1000&minmagnitude=${this.state.magnitude}`)
       .then(({ data }) => {
         this.setState({
           earthquakes: data.features
@@ -56,7 +53,19 @@ class App extends Component {
   setMagnitude = (magnitude) => {
     this.setState({
       magnitude
-    })
+    }, this.fetchData)
+  }
+
+  setDateRange = (event) => {
+    if (event.target.id === "startTime") {
+      this.setState({
+        startTime: event.target.value
+      }, this.fetchData)
+    } else {
+      this.setState({
+        endTime: event.target.value
+      }, this.fetchData)
+    }
   }
 }
 
